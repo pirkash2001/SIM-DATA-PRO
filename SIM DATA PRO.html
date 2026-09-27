@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pak Sim Data - Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-color: #f1f5f9; 
+            --card-bg: #ffffff;
+            --primary-blue: #2563eb;
+            --primary-gradient: linear-gradient(135deg, #1e40af, #3b82f6);
+            --text-dark: #0f172a;
+            --text-muted: #64748b;
+            --tag-bg: #000000;     
+            --tag-text: #fbbf24;   
+            --tag-border: #fbbf24; 
+            --border-color: #e2e8f0;
+            --wa-color: #25D366;
+            --wa-gradient: linear-gradient(135deg, #128C7E, #25D366);
+            --font-main: 'Inter', sans-serif;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body, html { background-color: var(--bg-color); color: var(--text-dark); font-family: var(--font-main); min-height: 100vh; width: 100%; }
+
+        .app-header {
+            background: var(--primary-gradient); padding: 16px 15px; text-align: center;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.2); position: sticky; top: 0; z-index: 50;
+        }
+        .app-header h1 { font-size: 1.25rem; font-weight: 800; color: #ffffff; letter-spacing: 1px; display: flex; align-items: center; justify-content: center; gap: 10px; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+
+        .container { max-width: 600px; margin: 0 auto; padding: 15px; padding-bottom: 40px; }
+
+        .search-container {
+            background: var(--card-bg); border-radius: 30px; padding: 6px 6px 6px 18px;
+            display: flex; align-items: center; box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            margin-bottom: 20px; border: 1px solid var(--border-color);
+        }
+        .search-container:focus-within { border-color: var(--primary-blue); box-shadow: 0 4px 15px rgba(37, 99, 235, 0.15); }
+        .search-container i.fa-search { color: var(--primary-blue); font-size: 1.1rem; }
+        #targetInput { flex: 1; border: none; outline: none; padding: 12px 14px; font-size: 1.05rem; font-weight: 600; color: var(--text-dark); background: transparent; width: 100%; }
+
+        .scan-btn {
+            background: var(--primary-gradient); color: white; border: none; border-radius: 25px;
+            padding: 12px 24px; font-weight: 800; font-size: 0.95rem; cursor: pointer;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
+        }
+        .scan-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+
+        .card { background: var(--card-bg); border-radius: 14px; padding: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 16px; border: 1px solid var(--border-color); }
+        
+        .identity-grid { display: grid; grid-template-columns: 1fr; gap: 16px; margin-bottom: 16px; }
+        @media(min-width: 400px) { .identity-grid { grid-template-columns: 1fr 1fr; } }
+        
+        .info-block { display: flex; flex-direction: column; gap: 6px; }
+        .info-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; font-weight: 800; color: var(--primary-blue); letter-spacing: 0.5px; text-transform: uppercase; }
+        .info-header i { cursor: pointer; color: var(--text-muted); font-size: 1rem; padding: 4px; }
+        .info-value { font-size: 1.05rem; font-weight: 700; color: var(--text-dark); padding-bottom: 8px; border-bottom: 1px dashed #cbd5e1; word-break: break-word; min-height: 28px; }
+
+        .address-box { background: #f8fafc; border-radius: 10px; padding: 14px; border: 1px solid #e2e8f0; border-left: 4px solid var(--primary-blue); }
+        .address-label { font-size: 0.8rem; font-weight: 800; margin-bottom: 6px; color: var(--text-dark); }
+        .address-text { font-size: 0.9rem; font-weight: 500; color: var(--text-muted); line-height: 1.5; min-height: 24px; }
+
+        /* Fresh Data Alert Box */
+        .fresh-data-promo {
+            display: none; background: #fee2e2; border: 1px solid #f87171; 
+            border-radius: 10px; padding: 14px; margin-top: 12px; text-align: center;
+            animation: fadeIn 0.4s;
+        }
+        .promo-text { color: #991b1b; font-size: 0.85rem; font-weight: 700; margin-bottom: 10px; line-height: 1.4; }
+        .btn-wa-small { background: var(--wa-color); color: white; border: none; border-radius: 6px; padding: 8px 16px; font-weight: 800; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(37, 211, 102, 0.3); }
+
+        .section-title { font-size: 0.9rem; font-weight: 800; color: var(--text-dark); display: flex; justify-content: space-between; align-items: center; margin: 24px 5px 12px 5px; letter-spacing: 0.5px; }
+        
+        .number-row { padding: 16px 0; border-bottom: 1px solid var(--border-color); display: flex; flex-direction: column; gap: 12px; }
+        .number-row:last-child { border-bottom: none; padding-bottom: 0; }
+        .number-header { font-size: 1.05rem; font-weight: 700; color: var(--text-dark); display: flex; align-items: center; gap: 8px; }
+        .number-header i { color: var(--primary-blue); font-size: 1rem; }
+        
+        .number-content { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+        .tags-container { display: flex; flex-wrap: wrap; gap: 8px; flex: 1; min-height: 28px; align-items: center; }
+        
+        .eycon-tag {
+            background: var(--tag-bg); color: var(--tag-text); padding: 5px 12px; border-radius: 8px; 
+            font-size: 0.8rem; font-weight: 700; border: 1px solid var(--tag-border);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15); letter-spacing: 0.5px;
+        }
+        
+        .retry-text { font-size: 0.8rem; color: var(--warning); font-weight: 600; display: flex; align-items: center; gap: 5px; }
+
+        .profile-img { width: 44px; height: 44px; border-radius: 10px; object-fit: cover; border: 2px solid var(--border-color); cursor: pointer; box-shadow: 0 2px 8px rgba(0,0,0,0.1); flex-shrink: 0; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .skeleton { background: #cbd5e1; border-radius: 6px; height: 20px; width: 60%; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+        .spinner { font-size: 1.2rem; color: var(--primary-blue); }
+
+        .paid-services { margin-top: 30px; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 16px; overflow: hidden; box-shadow: 0 6px 16px rgba(0,0,0,0.06); }
+        .paid-header { background: #0f172a; color: #fbbf24; padding: 16px; text-align: center; font-weight: 800; font-size: 1.1rem; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        
+        .services-list { display: flex; flex-direction: column; }
+        .service-item { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; border-bottom: 1px solid #f1f5f9; gap: 10px; }
+        .service-item:nth-child(even) { background: #f8fafc; }
+        
+        .service-name { font-size: 0.85rem; font-weight: 600; color: #334155; display: flex; align-items: center; gap: 10px; line-height: 1.3; }
+        .service-name i { color: var(--primary-blue); width: 18px; text-align: center; font-size: 1rem; }
+        .service-price { font-size: 0.85rem; font-weight: 800; color: #059669; white-space: nowrap; background: #d1fae5; padding: 4px 8px; border-radius: 6px; }
+
+        .btn-action { width: 100%; margin-top: 15px; color: white; border: none; padding: 16px; font-size: 1rem; font-weight: 800; border-radius: 12px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .btn-wa { background: var(--wa-gradient); }
+        .btn-tg { background: var(--primary-gradient); }
+
+        .modal { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.95); z-index: 1000; display: none; justify-content: center; align-items: center; padding: 20px; }
+        .modal.active { display: flex; }
+        .img-content { max-width: 100%; max-height: 85vh; border-radius: 12px; border: 3px solid white; }
+        #resultsArea { display: none; }
+    </style>
+</head>
+<body>
+
+<div class="app-header">
+    <h1><i class="fas fa-shield-alt"></i> PAK SIM DATA PRO</h1>
+</div>
+
+<div class="container">
+    
+    <div class="search-container">
+        <i class="fas fa-search"></i>
+        <input type="text" id="targetInput" placeholder="Enter Mobile or CNIC..." inputmode="numeric">
+        <button class="scan-btn" id="runBtn" onclick="initiateFastScan()">SCAN</button>
+    </div>
+
+    <div id="resultsArea">
+        <div class="card">
+            <div class="identity-grid">
+                <div class="info-block">
+                    <div class="info-header">NAME <i class="far fa-copy" onclick="copyText('resName')"></i></div>
+                    <div class="info-value" id="resName"><div class="skeleton"></div></div>
+                </div>
+                <div class="info-block">
+                    <div class="info-header">CNIC <i class="far fa-copy" onclick="copyText('resCNIC')"></i></div>
+                    <div class="info-value" id="resCNIC"><div class="skeleton"></div></div>
+                </div>
+            </div>
+            
+            <div class="address-box">
+                <div class="address-label">REGISTERED ADDRESS:</div>
+                <div class="address-text" id="resAddress"><div class="skeleton" style="width: 80%;"></div><div class="skeleton" style="width: 50%; margin-top:8px;"></div></div>
+            </div>
+            
+            <!-- Fresh Data Promo Block (Hidden by default) -->
+            <div id="freshDataPromo" class="fresh-data-promo">
+                <div class="promo-text">Iska fresh data lene ke liye WhatsApp par rabta karein. Jiski fee Rs. 400 hai.</div>
+                <button class="btn-wa-small" onclick="window.open('https://wa.me/923033883979', '_blank')">
+                    <i class="fab fa-whatsapp"></i> Rabta Karein (03033883979)
+                </button>
+            </div>
+        </div>
+
+        <div class="section-title">DIGITAL FOOTPRINT <i class="fas fa-fingerprint"></i></div>
+        <div class="section-title" style="margin-top: 10px;">ACTIVE NUMBERS ON CNIC</div>
+
+        <div class="card" id="numbersContainer"></div>
+    </div>
+
+    <button class="btn-action btn-tg" onclick="window.open('https://chat.whatsapp.com/JRYeuIWE8UO0UHh5VBEoAT')">
+        <i class="fab fa-whatsapp"></i> JOIN UPDATES GROUP
+    </button>
+
+    <div class="paid-services">
+        <div class="paid-header">
+            <i class="fas fa-fire"></i> AVAILABLE SERVICES & RATES
+        </div>
+        <div class="services-list">
+            <div class="service-item"><div class="service-name"><i class="fas fa-sim-card"></i> Fresh SIM Ownership</div><div class="service-price">Rs. 400</div></div>
+            <div class="service-item"><div class="service-name"><i class="fas fa-mobile-alt"></i> Number Against Registered Other No</div><div class="service-price">Rs. 800</div></div>
+            <div class="service-item"><div class="service-name"><i class="fas fa-file-contract"></i> CDR (3 Months)</div><div class="service-price">Rs. 5,000</div></div>
+            <div class="service-item"><div class="service-name"><i class="fas fa-map-marker-alt"></i> Location Tracker</div><div class="service-price">Rs. 1,500</div></div>
+            <div class="service-item"><div class="service-name"><i class="fas fa-id-card"></i> CNIC Color Copy Extracted</div><div class="service-price">Rs. 2,000</div></div>
+            <div class="service-item"><div class="service-name"><i class="fas fa-users"></i> NADRA Family Tree</div><div class="service-price">Rs. 4,000</div></div>
+            <div class="service-item"><div class="service-name"><i class="fas fa-passport"></i> Passport Info</div><div class="service-price">Rs. 1,500</div></div>
+            <div class="service-item"><div class="service-name"><i class="fab fa-whatsapp"></i> Out-of-Country WA Number</div><div class="service-price">Rs. 800</div></div>
+            <div class="service-item"><div class="service-name"><i class="fas fa-sim-card"></i> SIM → All Numbers Against CNIC</div><div class="service-price">Rs. 800</div></div>
+            <div class="service-item"><div class="service-name"><i class="fas fa-fingerprint"></i> IMEI Trace</div><div class="service-price">Rs. 4,000</div></div>
+            <div class="service-item"><div class="service-name"><i class="fas fa-calendar-alt"></i> CNIC Date of Birth</div><div class="service-price">Rs. 300</div></div>
+            <div class="service-item"><div class="service-name"><i class="fas fa-wallet"></i> JazzCash/Easypaisa Pass Reset</div><div class="service-price">Rs. 700</div></div>
+            <div class="service-item"><div class="service-name"><i class="fas fa-female"></i> Mother Name + CNIC/DOB</div><div class="service-price">Rs. 500</div></div>
+            <div class="service-item"><div class="service-name"><i class="fas fa-plane-departure"></i> Travel Data Original PDF</div><div class="service-price">Contact</div></div>
+            <div class="service-item"><div class="service-name"><i class="fas fa-certificate"></i> Marriage / Death Certificate</div><div class="service-price">Contact</div></div>
+            <div class="service-item"><div class="service-name"><i class="fas fa-car"></i> Vehicle Details Full</div><div class="service-price">Contact</div></div>
+            <div class="service-item"><div class="service-name"><i class="fas fa-id-badge"></i> Sindh Vehicle E-Card Services</div><div class="service-price">Contact</div></div>
+        </div>
+        <button class="btn-action btn-wa" style="border-radius: 0; margin-top: 0;" onclick="window.open('https://wa.me/923033883979', '_blank')">
+            <i class="fab fa-whatsapp" style="font-size: 1.3rem;"></i> VIP ACCESS (CONTACT ADMIN)
+        </button>
+    </div>
+
+</div>
+
+<div class="modal" id="imageModal" onclick="this.classList.remove('active')">
+    <img class="img-content" id="fullImage" src="">
+</div>
+
+<script>
+    const API_SIM = "https://paksimsdata.pro/api3.php?number="; 
+    const API_EYCON = "https://paksimsdata.pro/45/api.php?number=";
+    
+    let processedNumbers = new Set();
+    const delay = ms => new Promise(res => setTimeout(res, ms));
+
+    // Voice Function
+    function speakText(text) {
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.cancel(); // Stop any previous speech
+            let utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 1.0; 
+            utterance.pitch = 1.0;
+            window.speechSynthesis.speak(utterance);
+        }
+    }
+
+    function copyText(elementId) {
+        const el = document.getElementById(elementId);
+        if(!el.innerText || el.innerText.includes('...')) return;
+        navigator.clipboard.writeText(el.innerText);
+    }
+
+    function openImage(url) {
+        document.getElementById('fullImage').src = url;
+        document.getElementById('imageModal').classList.add('active');
+    }
+
+    function initiateFastScan() {
+        const inputField = document.getElementById('targetInput');
+        const searchBtn = document.getElementById('runBtn');
+        const resultsArea = document.getElementById('resultsArea');
+        const numbersContainer = document.getElementById('numbersContainer');
+        const promoBlock = document.getElementById('freshDataPromo');
+        
+        const rawInput = inputField.value.trim();
+        const cleanInput = rawInput.replace(/\D/g, '');
+
+        if(!cleanInput) { alert("Please enter a valid Mobile Number or CNIC."); return; }
+
+        searchBtn.disabled = true;
+        searchBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+        
+        document.getElementById('resName').innerHTML = '<div class="skeleton"></div>';
+        document.getElementById('resCNIC').innerHTML = '<div class="skeleton"></div>';
+        document.getElementById('resAddress').innerHTML = '<div class="skeleton" style="width:80%;"></div><div class="skeleton" style="width:50%; margin-top:8px;"></div>';
+        promoBlock.style.display = 'none'; // Hide promo initially
+        
+        numbersContainer.innerHTML = '';
+        processedNumbers.clear();
+        resultsArea.style.display = 'block';
+
+        const isMobileNumber = cleanInput.length < 13;
+        fetchSimDatabase(cleanInput, searchBtn, isMobileNumber);
+    }
+
+    function appendNumberSkeleton(num) {
+        if(processedNumbers.has(num)) return;
+        processedNumbers.add(num);
+
+        const container = document.getElementById('numbersContainer');
+        const rowHTML = `
+            <div class="number-row" id="row-${num}">
+                <div class="number-header"><i class="fas fa-phone-alt"></i> ${num}</div>
+                <div class="number-content">
+                    <div class="tags-container" id="tags-${num}">
+                        <i class="fas fa-circle-notch fa-spin spinner"></i>
+                    </div>
+                    <div id="img-${num}"></div>
+                </div>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', rowHTML);
+    }
+
+    async function fetchEyconForNumber(num, retries = 2) {
+        const tagsContainer = document.getElementById(`tags-${num}`);
+        const imgContainer = document.getElementById(`img-${num}`);
+        if(!tagsContainer) return;
+
+        try {
+            const rawEye = await fetch(`${API_EYCON}${num}`).then(r => r.json());
+            let names = [], images = [];
+            
+            if(rawEye && typeof rawEye === 'object') {
+                if (Array.isArray(rawEye) && rawEye.length > 0) {
+                     names = rawEye[0].names || (rawEye[0].name ? [rawEye[0].name] : []);
+                     images = rawEye[0].images || [];
+                } else if (rawEye.results && Array.isArray(rawEye.results) && rawEye.results.length > 0) {
+                     names = rawEye.results[0].names || [];
+                     images = rawEye.results[0].images || [];
+                } else if (rawEye.names) {
+                     names = rawEye.names;
+                     images = rawEye.images || [];
+                }
+            }
+
+            if(typeof names === 'string') names = [names];
+            const validNames = names.slice(0, 4);
+            
+            if (validNames.length > 0) {
+                tagsContainer.innerHTML = validNames.map(n => `<div class="eycon-tag">${n}</div>`).join('');
+                fetch('save_eycon.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ number: num, names: validNames }) }).catch(e => {});
+            } else {
+                tagsContainer.innerHTML = `<span style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">No digital footprint</span>`;
+                fetch('save_eycon.php', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ number: num, names: ["No Name Found"] }) }).catch(e => {});
+            }
+
+            if (images.length > 0 && images[0]) {
+                imgContainer.innerHTML = `<img src="${images[0]}" class="profile-img" onclick="openImage(this.src)">`;
+            }
+
+        } catch(e) {
+            if (retries > 0) {
+                tagsContainer.innerHTML = `<span class="retry-text"><i class="fas fa-sync fa-spin"></i> Retrying...</span>`;
+                await delay(2000); 
+                return fetchEyconForNumber(num, retries - 1);
+            } else {
+                tagsContainer.innerHTML = `<span style="font-size:0.8rem; color:var(--danger); font-weight:600;">Server busy</span>`;
+            }
+        }
+    }
+
+    async function processLinkedNumbersSequentially(numbersList) {
+        for (let i = 0; i < numbersList.length; i++) {
+            let num = numbersList[i];
+            if (!document.getElementById(`row-${num}`)) {
+                appendNumberSkeleton(num);
+            }
+            await fetchEyconForNumber(num, 2); 
+            await delay(1500); 
+        }
+    }
+
+    async function fetchSimDatabase(input, btnElement, wasMobileSearched) {
+        let name = "RECORD NOT FOUND", cnic = "N/A", address = "N/A", linkedNumbers = [];
+        let isDataFound = false;
+
+        try {
+            const res = await fetch(`${API_SIM}${input}`).then(r => r.json());
+            
+            if(Array.isArray(res) && res.length > 0 && !res[0].Error) {
+                cnic = res[0].CNIC || "N/A";
+                name = res[0].Name || "N/A";
+                address = res[0].ADDRESS || "N/A";
+
+                if (name !== "N/A" && name !== "RECORD NOT FOUND" && name !== "") {
+                    isDataFound = true;
+                }
+
+                if(cnic !== "N/A") {
+                    const resLinked = await fetch(`${API_SIM}${cnic}`).then(r => r.json());
+                    if(Array.isArray(resLinked) && resLinked.length > 0 && !resLinked[0].Error) {
+                        linkedNumbers = resLinked.map(item => item.Mobile);
+                    }
+                }
+            }
+        } catch(e) {
+            console.error("SIM API Error");
+        }
+
+        // Voice Feedback and Promo Logic
+        if (isDataFound) {
+            speakText("Data found");
+            document.getElementById('freshDataPromo').style.display = 'none';
+        } else {
+            speakText("No record found");
+            document.getElementById('freshDataPromo').style.display = 'block';
+            name = "RECORD NOT FOUND";
+        }
+
+        document.getElementById('resName').innerText = name;
+        document.getElementById('resCNIC').innerText = cnic;
+        document.getElementById('resAddress').innerText = address;
+
+        btnElement.disabled = false;
+        btnElement.innerText = "SCAN";
+
+        linkedNumbers = [...new Set(linkedNumbers)];
+        
+        if (linkedNumbers.length > 0) {
+            processLinkedNumbersSequentially(linkedNumbers);
+        } else {
+            appendNumberSkeleton(input);
+            fetchEyconForNumber(input, 2);
+        }
+    }
+</script>
+
+</body>
+</html>
